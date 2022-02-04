@@ -1,7 +1,11 @@
+Big chungus is a moderation bot with the aim of being efficient and easy to setup.
+> The entire bot can be configured through the [website]().
+
 ## Features
-* [Raid and nuke protection]() - Protect your server with automated anti-nuke/raid systems and/or manual commands.
+* [Raid and nuke protection]() - Protect your server with automated anti-nuke/raid systems or manual commands.
 * [Fast auto-moderation]() - Automatically delete spam, nsfw messages, links, discord invites, and custom [regex]() matches within milliseconds.
 * [Highly configurable strike system]() - Configure custom punishments for members that trigger on `x` amount of strikes.
+* [The best basic moderation commands]() - Basic moderation commands with heirarchy-based moderation.
 
 ### Raid and nuke protection
 * Webhooks cannot be created, and will be deleted by the bot immediately (unless unsafe mode is enabled).
@@ -17,10 +21,21 @@ You can configure the bot to delete messages that contain links, spam (repeated 
 You can also configure the bot to delete messages that contain certain patterns using [regex]().
 
 ### Highly configurable strike system
-Strikes are essentially warnings, and people with the `MANAGE_MEMBERS` permission can use the `!strike` command to give any amount of strikes to a user.
-You can [configure actions to be performed when a user reaches a certain amount of strikes](), currently supported actions are:
-* `timeout` - Timeout a member for a certain amount of time
-* `kick` - Kick a user
-* `ban` - Ban a user
+Strikes are essentially warnings, and people with the `MANAGE_MEMBERS` permission can use the `strike` command to give any amount of strikes to a user.
+You can [configure actions to be performed when a user reaches a certain amount of strikes](), currently supported actions are: `timeout`, `kick` and `ban`
 
-For more information on actions, [read the docs]().
+### Basic Moderation
+Big Chungus has a system of hierarchy based moderation, which allows members of higher position to moderate members of (relatively) lower position, even though both members are moderators. The basic moderation commands available in the bot are: `ban`, `unban`, `kick`, `timeout`, `strike`, `strikes` and `relax`.
+> _Moderators_ are people who can run moderation commands in a server.
+
+## Using the Code
+### Prequesites
+* TypeScript (`npm i -g typescript`)
+* Node.js 17.1 ([install]())
+* Basic programming knowledge 
+
+After installing/cloning this repository, go to the last line in `src/index.ts`, and input your token (Instructions are present in the file). Run the `npm start` command to run the bot. 
+
+## Resources and Links
+* [Website]() - Configure the bot here
+* [Documentations]() - All commands in the bot are properly documented here.
