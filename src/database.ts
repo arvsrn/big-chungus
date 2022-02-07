@@ -1,3 +1,4 @@
+import { Guild as DiscordGuild } from "discord.js";
 import Keyv from "keyv";
 
 /* Stores all the data that needs to be cached when anti-raid mode is turned on */
@@ -12,6 +13,8 @@ export interface Guild {
     antiRaid: boolean,
     unsafeMode: boolean,
 
+    webhooksWhitelist: string[],
+
     raidCache: RaidCache,
     banCache: string[],
     eventRateCache: Map<string, number>
@@ -24,12 +27,21 @@ export class Database {
         this.inner = new Keyv({});
     }
 
-    async defaultGuild(id: string) { 
-        await this.insertGuild(id, {
+    async defaultGuild(guild: DiscordGuild) { 
+        const webhooksWhiteList: string[] = [];
+        
+        /* All webhooks when the bot is added to the guild are whitelisted */
+        for (const webhook of await guild.fetchWebhooks()) {
+            webhooksWhiteList.push(webhook[1].id);
+        }
+
+        await this.insertGuild(guild.id, {
             moderators: [],
 
             antiRaid: false,
             unsafeMode: false,
+
+            webhooksWhitelist: webhooksWhiteList,
 
             raidCache: { bannedUsers: [] },
             banCache: [],
