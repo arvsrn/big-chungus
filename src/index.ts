@@ -35,7 +35,7 @@ client.once("ready", async (client) => {
 
     /* Add all guilds to the database */
     for (const guild of client.guilds.cache.values()) {
-        await database.defaultGuild(guild.id);
+        await database.defaultGuild(guild);
     }
 
     log(`b{Logged in as ${client.user.username}.}`);
@@ -44,15 +44,16 @@ client.once("ready", async (client) => {
 client.on("webhookUpdate", async (channel) => {
     let guild = await database.retrieveGuild(channel.guildId);
 
-    /* Webhooks won't be deleted if unsafe mode is enabled 
+    /* Webhooks won't be deleted if unsafe mode is disabled */
+    if (guild?.unsafeMode) {
+        /* Refresh whitelist for this guild as new webhooks may have been created */
+        for (const webhook of await channel.guild.fetchWebhooks()) {
+            guild.webhooksWhitelist.push(webhook[1].id);
+        }
 
-       Note: I need to rethink of this system because the webhookUpdate event is dispatched 
-       whenever a webhook is _updated_ in a channel. Therefore, unsafe mode needs to be enabled
-       if you want to create and/or edit a webhook. This might get annoying for users, so i'll 
-       probably implement a whitelist, where any webhooks created while unsafe mode is enabled are
-       whitelisted, and wont be deleted by the bot.
-    */ 
-    if (guild?.unsafeMode) return;
+        database.insertGuild(channel.guildId, guild);
+        return;
+    };
 
     let webhooks = await channel.fetchWebhooks();
 
@@ -92,7 +93,7 @@ client.on("guildBanAdd", async (ban) => {
 });
 
 client.on("guildCreate", async (guild) => {
-    await database.defaultGuild(guild.id as string);
+    await database.defaultGuild(guild);
 });
 
 client.on("guildDelete", async (guild) => {
@@ -101,10 +102,7 @@ client.on("guildDelete", async (guild) => {
 
 /* Text command handler */
 client.on("messageCreate", async message => {
-    if (message.content.startsWith("!")) {
-        /* If guild does not exist in the database, add it */
-        if (!await database.retrieveGuild(message.guildId as string)) await database.defaultGuild(message.guildId as string);
-        
+    if (message.content.startsWith("!") && message.channel != null) {;
         /* Weird but working code to extract command name */
         let commandName = message.content
             .toLowerCase()
