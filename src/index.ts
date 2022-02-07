@@ -59,13 +59,37 @@ client.on("webhookUpdate", async (channel) => {
 client.on("guildMemberAdd", async (member) => {
     let guild = await database.retrieveGuild(member.guild.id);
 
-    /* Ban the member if anti-raid is enabled, and add them to the ban cache. */
+    /* Ban the member if anti-raid is enabled, and add them to the ban cache */
     if (guild?.antiRaid) {
         await member.ban({ reason: "[Big Chungus] Anti-raid was enabled." });
         guild.raidCache.bannedUsers.push(member.id);
 
         database.insertGuild(member.guild.id, guild);
     }
+
+    /* Kick any ban-evaders */
+    else if (guild?.banCache.includes(member.id)) {
+        await member.kick();
+    }
+});
+
+client.on("guildBanAdd", async (ban) => {
+    let guild = await database.retrieveGuild(ban.guild.id);
+    if (!guild) return;
+
+    /* If member was not banned due to antiraid mode, add them to the server ban cache */
+    if (!guild.raidCache.bannedUsers.includes(ban.user.id)) {
+        guild.banCache.push(ban.user.id);
+        database.insertGuild(ban.guild.id, guild);
+    }
+});
+
+client.on("guildCreate", async (guild) => {
+    await database.defaultGuild(guild.id as string);
+});
+
+client.on("guildDelete", async (guild) => {
+    await database.removeGuild(guild.id as string); 
 });
 
 /* Text command handler */
