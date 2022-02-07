@@ -1,6 +1,6 @@
 import Keyv from "keyv";
 
-/* Stores all the data that needs to be cached when anti-raid mode is turned on. */
+/* Stores all the data that needs to be cached when anti-raid mode is turned on */
 export interface RaidCache {
     bannedUsers: string[],
 }
@@ -43,5 +43,9 @@ export class Database {
 
     async retrieveGuild(id: string): Promise<Guild | undefined> {
         return await this.inner.get(id);
+    }
+
+    async removeGuild(id: string) {
+        await this.inner.delete(id);
     }
 }
