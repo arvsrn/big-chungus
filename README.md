@@ -3,7 +3,7 @@ Big chungus is a moderation bot with the aim of being efficient and easy to setu
 
 ## Features
 * [Raid and nuke protection](https://github.com/duckie451/big-chungus#raid-and-nuke-protection) - Protect your server with automated anti-nuke/raid systems or manual commands.
-* [Fast auto-moderation](https://github.com/duckie451/big-chungus#fast-auto-moderation) - Automatically delete spam, nsfw messages, links, discord invites, and custom [regex]() matches within milliseconds.
+* [Fast auto-moderation](https://github.com/duckie451/big-chungus#fast-auto-moderation) - Automatically delete spam, nsfw messages, links, and discord invites.
 * [Highly configurable strike system](https://github.com/duckie451/big-chungus#highly-configurable-strike-system) - Configure custom punishments for members that trigger on `x` amount of strikes.
 * [The best basic moderation commands](https://github.com/duckie451/big-chungus#basic-moderation) - Basic moderation commands with heirarchy-based moderation.
 
@@ -17,8 +17,7 @@ Big chungus is a moderation bot with the aim of being efficient and easy to setu
 • Constantly look for any duplicate roles/channels/categories and deletes them.
 
 ### Fast auto-moderation
-You can configure the bot to delete messages that contain links, spam (repeated characters, mention spam, etc), blacklisted words, discord invites,
-you can also configure the bot to delete messages that contain certain patterns using [regex](https://en.wikipedia.org/wiki/Regular_expression).
+You can configure the bot to delete messages that contain links, spam (repeated characters, mention spam, etc), blacklisted words, discord invites.
 
 ### Highly configurable strike system
 Strikes are essentially warnings, and people with the `MANAGE_MEMBERS` permission can use the `strike` command to give any amount of strikes to a user.
