@@ -17,8 +17,8 @@ Big chungus is a moderation bot with the aim of being efficient and easy to setu
 • Constantly look for any duplicate roles/channels/categories and deletes them.
 
 ### Fast auto-moderation
-You can configure the bot to delete messages that contain links, spam (repeated characters, mention spam, etc), blacklisted words, discord invites.
-You can also configure the bot to delete messages that contain certain patterns using [regex](https://en.wikipedia.org/wiki/Regular_expression).
+You can configure the bot to delete messages that contain links, spam (repeated characters, mention spam, etc), blacklisted words, discord invites,
+you can also configure the bot to delete messages that contain certain patterns using [regex](https://en.wikipedia.org/wiki/Regular_expression).
 
 ### Highly configurable strike system
 Strikes are essentially warnings, and people with the `MANAGE_MEMBERS` permission can use the `strike` command to give any amount of strikes to a user.
