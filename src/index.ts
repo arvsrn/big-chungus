@@ -10,7 +10,12 @@ import path from 'path';
 type CommandFunction = (message: Message, database: Database) => Promise<void>;
 
 const client = new Client({
-    intents: [Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_WEBHOOKS]
+    intents: [
+        Intents.FLAGS.GUILD_MESSAGES, 
+        Intents.FLAGS.GUILDS, 
+        Intents.FLAGS.GUILD_WEBHOOKS, 
+        Intents.FLAGS.GUILD_MEMBERS
+    ]
 });
 
 /* Initiailize database and command handler */
@@ -49,6 +54,18 @@ client.on("webhookUpdate", async (channel) => {
             await webhook.delete();
         } catch {}
     });
+});
+
+client.on("guildMemberAdd", async (member) => {
+    let guild = await database.retrieveGuild(member.guild.id);
+
+    /* Ban the member if anti-raid is enabled, and add them to the ban cache. */
+    if (guild?.antiRaid) {
+        await member.ban({ reason: "[Big Chungus] Anti-raid was enabled." });
+        guild.raidCache.bannedUsers.push(member.id);
+
+        database.insertGuild(member.guild.id, guild);
+    }
 });
 
 /* Text command handler */
