@@ -4,7 +4,7 @@ import { token } from "./config.json";
 import { CommandHandler } from "./handler";
 import ms from "ms";
 
-import { Client, Intents } from "discord.js";
+import { Client, Intents, MessageEmbed } from "discord.js";
 
 const client = new Client({
     intents: [Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_WEBHOOKS]
@@ -17,11 +17,19 @@ commandHandler.registerCommand("antiraid", async (message, database) => {
     let guild = await database.retrieveGuild(message.guildId as string);
     if (!guild) return;
 
+    let additional = "";
+
+    /* If anti-raid will be enabled, disable unsafe mode */
+    if (guild.unsafeMode && (!guild.antiRaid == true)) {
+        additional = "Extra: Disabled unsafe mode.";
+        guild.unsafeMode = false;
+    }
+
     guild.antiRaid = !guild.antiRaid;
     await database.insertGuild(message.guildId as string, guild);
 
     await message.reply(
-        `${guild.antiRaid ? String.raw`\🔒` : String.raw`\🔓`} **Anti-raid mode has been turned ${guild.antiRaid ? 'on' : 'off'}**`
+        `${guild.antiRaid ? String.raw`\🔒` : String.raw`\🔓`} **Anti-raid mode has been turned ${guild.antiRaid ? 'on' : 'off'}.**\n${additional}`
     );
 });
 
@@ -29,20 +37,36 @@ commandHandler.registerCommand("unsafe", async (message, database) => {
     let guild = await database.retrieveGuild(message.guildId as string);
     if (!guild) return;
 
+    if (guild.antiRaid) {
+        await message.reply("You can't enable unsafe mode when anti-raid mode is on.");
+        return;
+    }
+
     guild.unsafeMode = true;
     await database.insertGuild(message.guildId as string, guild);
 
-    await message.reply(
-        `${guild.unsafeMode ? String.raw`\🔓` : String.raw`\🔒`} **Unsafe mode has been turned ${guild.unsafeMode ? 'on' : 'off'}**`
-    );
+    await message.reply(`${String.raw`\🔓`} **Unsafe mode has been turned on.**`);
 
     setTimeout(async () => {
         let guild = await database.retrieveGuild(message.guildId as string);
         if (!guild) return;
+        await message.reply(`${String.raw`\🔒`} **Unsafe mode has been turned off.**`);
 
         guild.unsafeMode = false;
         await database.insertGuild(message.guildId as string, guild);
     }, 120000 /* two minutes */)
+});
+
+commandHandler.registerCommand("help", async (message, database) => {
+    const helpEmbed = new MessageEmbed()
+        .setColor("#5855f2")
+        .setAuthor({ name: "Big Chungus", iconURL: "https://cdn.discordapp.com/attachments/758315694940749864/936667985341476914/shadowMoOOoOoO.png" })
+        .setDescription(
+            "`antiraid` - Enable anti-raid mode.\n" + 
+            "`unsafe` - Enable unsafe mode, allows webhooks to be created in the server. Unsafe mode is automatically disabled after two miutes."
+        );
+    
+    await message.reply({ embeds: [helpEmbed] })
 });
 
 client.once("ready", async (client) => {
