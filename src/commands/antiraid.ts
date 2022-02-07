@@ -14,6 +14,19 @@ export async function run(message: Message | CommandInteraction, database: Datab
     }
 
     guild.antiRaid = !guild.antiRaid;
+
+    /* Unban any members that were banned when antiraid was on */
+    if (!guild.antiRaid) {
+        for (const id of guild.raidCache.bannedUsers) {
+            message.guild?.members.unban(id);
+        }
+
+        const banCacheLen = guild.raidCache.bannedUsers.length;
+        
+        additional += `Extra: Unbanned \`${banCacheLen}\` user${banCacheLen > 1 ? 's' : ''}.`;
+        guild.raidCache.bannedUsers = [];
+    }
+
     await database.insertGuild(message.guildId as string, guild);
 
     await message.reply(
