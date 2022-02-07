@@ -44,7 +44,14 @@ client.once("ready", async (client) => {
 client.on("webhookUpdate", async (channel) => {
     let guild = await database.retrieveGuild(channel.guildId);
 
-    /* Webhooks won't be deleted if unsafe mode is enabled */ 
+    /* Webhooks won't be deleted if unsafe mode is enabled 
+
+       Note: I need to rethink of this system because the webhookUpdate event is dispatched 
+       whenever a webhook is _updated_ in a channel. Therefore, unsafe mode needs to be enabled
+       if you want to create and/or edit a webhook. This might get annoying for users, so i'll 
+       probably implement a whitelist, where any webhooks created while unsafe mode is enabled are
+       whitelisted, and wont be deleted by the bot.
+    */ 
     if (guild?.unsafeMode) return;
 
     let webhooks = await channel.fetchWebhooks();
