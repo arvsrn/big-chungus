@@ -6,6 +6,8 @@ import { Client, Collection, Intents, Message } from "discord.js";
 
 import fs from 'fs';
 import path from 'path';
+import { isBadMessage } from "./utilities/blacklistFilter";
+import { replaceValues } from "./utilities/replace";
 
 type CommandFunction = (message: Message, database: Database) => Promise<void>;
 
@@ -21,6 +23,9 @@ const client = new Client({
 /* Initiailize database and command handler */
 const database = new Database();
 const commandHandler: Collection<string, CommandFunction> = new Collection();
+
+/* Regular expression to match URLs */
+const linksRegex = /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/
 
 client.once("ready", async (client) => {
     const commandsPath = path.resolve(__dirname, "commands");
@@ -102,6 +107,36 @@ client.on("guildDelete", async (guild) => {
 
 /* Text command handler */
 client.on("messageCreate", async message => {
+    if (!message.guildId) return;
+    let guild = await database.retrieveGuild(message.guildId);
+
+    if (message.content.search(linksRegex) > 0 && guild?.messageFilters.links) {
+        await message.delete();
+        await message.channel.send(
+            replaceValues(guild.messageFilters.messages.links, message)
+        );
+        return;
+    }
+
+    if (
+        (message.content.includes("discord.gg/") || message.content.includes(".gg/")) 
+        && guild?.messageFilters.discordInvites
+    ) {
+        await message.delete();
+        await message.channel.send(
+            replaceValues(guild.messageFilters.messages.discordInvites, message)
+        );
+        return;
+    }
+
+    if (isBadMessage(message.content, guild?.messageFilters.blacklist ? guild?.messageFilters.blacklist : [])) {
+        await message.delete();
+        await message.channel.send(
+            replaceValues(guild?.messageFilters.messages.blacklist as string, message)
+        );
+        return;
+    }
+
     if (message.content.startsWith("!") && message.channel != null) {;
         /* Weird but working code to extract command name */
         let commandName = message.content
