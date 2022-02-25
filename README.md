@@ -28,11 +28,14 @@ Big Chungus has a system of hierarchy based moderation, which allows members of 
 > _Moderators_ are people who can run moderation commands in a server.
 
 ## Using the Code
-### Prequesites
-* TypeScript (`npm i -g typescript`)
-* Node.js 17.1 ([install](https://nodejs.org/en/download/))
+- [NodeJS ^1.17.1](https://nodejs.org/en/)
+- TypeScript - `npm install typescript`
+- Discord.js - `npm install discord.js`
 
-After installing/cloning this repository, go to the last line in `src/index.ts`, and input your token (Instructions are present in the file). Run the `npm start` command to run the bot. 
+After installing all the required dependencies, put your bot's token (along with some additional data) in `src/config.js`.
+
+> Make sure to deploy the slash commands before running! If you have bash on your system, you can run the `run.sh` file.
+> Usage: `./bash.sh [mode]` where `mode` can be either `compile`, `deploy`, or `all`
 
 ## Resources and Links
 * [Website](NOT_IMPLEMENTED) - Configure the bot here
