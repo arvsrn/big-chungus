@@ -35,7 +35,7 @@ Big Chungus has a system of hierarchy based moderation, which allows members of 
 After installing all the required dependencies, put your bot's token (along with some additional data) in `src/config.js`.
 
 > Make sure to deploy the slash commands before running! If you have bash on your system, you can run the `run.sh` file.
-> Usage: `./bash.sh [mode]` where `mode` can be either `compile`, `deploy`, or `all`
+> Usage: `./run.sh [mode]` where `mode` can be either `compile`, `deploy`, or `all`
 
 ## Resources and Links
 * [Website](NOT_IMPLEMENTED) - Configure the bot here
