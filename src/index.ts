@@ -1,15 +1,14 @@
 import { Database } from "./database";
 import { log } from "./logging";
 import { token } from "./config.json";
+import { isBadMessage, replaceValues } from "./utilities/messages";
 
-import { Client, Collection, Intents, Message } from "discord.js";
+import { Client, Collection, CommandInteraction, Intents } from "discord.js";
 
 import fs from 'fs';
 import path from 'path';
-import { isBadMessage } from "./utilities/blacklistFilter";
-import { replaceValues } from "./utilities/replace";
 
-type CommandFunction = (message: Message, database: Database) => Promise<void>;
+type CommandFunction = (interaction: CommandInteraction, database: Database) => Promise<void>;
 
 const client = new Client({
     intents: [
@@ -33,9 +32,10 @@ client.once("ready", async (client) => {
 
     /* Register all commands from the `commands` folder */
     for (const file of commandFiles) {
-        const commandName = file.slice(0, file.length - 3);
-        const { run } = await import(`${commandsPath}/${file}`);
-        commandHandler.set(commandName, run);
+        import(`${commandsPath}/${file}`).then(file => {
+            console.log(file);
+            commandHandler.set(file.command.name, file.run)
+        });
     }    
 
     /* Add all guilds to the database */
@@ -44,7 +44,7 @@ client.once("ready", async (client) => {
     }
 
     log(`b{Logged in as ${client.user.username}.}`);
-})
+});
 
 client.on("webhookUpdate", async (channel) => {
     let guild = await database.retrieveGuild(channel.guildId);
@@ -136,16 +136,12 @@ client.on("messageCreate", async message => {
         );
         return;
     }
+});
 
-    if (message.content.startsWith("!") && message.channel != null) {;
-        /* Weird but working code to extract command name */
-        let commandName = message.content
-            .toLowerCase()
-            .split(" ")[0]
-            .slice(1, message.content.length);
-
-        let executeFunction = commandHandler.get(commandName);
-        if (executeFunction) await executeFunction(message, database);
+client.on('interactionCreate', async interaction => {
+    if (interaction.isCommand()) {
+        let executeFunction = commandHandler.get(interaction.commandName);
+        if (executeFunction) await executeFunction(interaction, database);
     }
 })
 
