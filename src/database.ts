@@ -6,6 +6,23 @@ export interface RaidCache {
     bannedUsers: string[],
 }
 
+export interface SpamFilter {}
+
+export interface MessageFilter {
+    blacklist: string[],
+    discordInvites: boolean,
+    links: boolean,
+
+    /* The messages to send when a message is deleted */
+    messages: {
+        blacklist: string,
+        discordInvites: string,
+        links: string
+    },
+
+    spamFilter: SpamFilter,
+}
+
 /* Represents a discord guild and is used in the database */
 export interface Guild {
     moderators: string[],
@@ -14,6 +31,7 @@ export interface Guild {
     unsafeMode: boolean,
 
     webhooksWhitelist: string[],
+    messageFilters: MessageFilter
 
     raidCache: RaidCache,
     banCache: string[],
@@ -42,6 +60,20 @@ export class Database {
             unsafeMode: false,
 
             webhooksWhitelist: webhooksWhiteList,
+
+            messageFilters: {
+                blacklist: [],
+                discordInvites: true,
+                links: true,
+
+                messages: {
+                    blacklist: "{user} This word is not allowed in this server!",
+                    discordInvites: "{user} discord invites are not allowed in this server!",
+                    links: "{user} links are not allowed in this server!",
+                },
+
+                spamFilter: {},
+            },
 
             raidCache: { bannedUsers: [] },
             banCache: [],
