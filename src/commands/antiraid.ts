@@ -1,8 +1,13 @@
+import { SlashCommandBuilder } from "@discordjs/builders";
 import { CommandInteraction, Message } from "discord.js";
 import { Database } from "../database";
 
-export async function run(message: Message | CommandInteraction, database: Database) {
-    let guild = await database.retrieveGuild(message.guildId as string);
+export const command = new SlashCommandBuilder()
+    .setName('raidmode')
+    .setDescription('Enable/disable anti-raid mode');
+
+export async function run(interaction: CommandInteraction, database: Database) {
+    let guild = await database.retrieveGuild(interaction.guildId as string);
     if (!guild) return;
 
     let additional = "";
@@ -18,7 +23,7 @@ export async function run(message: Message | CommandInteraction, database: Datab
     /* Unban any members that were banned when antiraid was on */
     if (!guild.antiRaid) {
         for (const id of guild.raidCache.bannedUsers) {
-            message.guild?.members.unban(id);
+            interaction.guild?.members.unban(id);
         }
 
         const banCacheLen = guild.raidCache.bannedUsers.length;
@@ -27,9 +32,9 @@ export async function run(message: Message | CommandInteraction, database: Datab
         guild.raidCache.bannedUsers = [];
     }
 
-    await database.insertGuild(message.guildId as string, guild);
+    await database.insertGuild(interaction.guildId as string, guild);
 
-    await message.reply(
+    await interaction.reply(
         `${guild.antiRaid ? String.raw`\🔒` : String.raw`\🔓`} **Anti-raid mode has been turned ${guild.antiRaid ? 'on' : 'off'}.**\n${additional}`
     );
 }
