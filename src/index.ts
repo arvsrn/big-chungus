@@ -26,17 +26,29 @@ const commandHandler: Collection<string, CommandFunction> = new Collection();
 /* Regular expression to match URLs */
 const linksRegex = /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/
 
+/* Helper function to recursively scan all the files and sub-directories and register the commands */
+function registerCommands(dir: string) {
+    const commandFiles = fs.readdirSync(dir).filter(file => file.endsWith('.js'));
+    
+    for (const file of commandFiles) {
+        const data = require(path.join(dir, file));
+        commandHandler.set(data.command.name, data.run)
+    }
+
+    const commandFolders = fs.readdirSync(dir)
+        .filter(file => fs.lstatSync(path.join(dir, file)).isDirectory());
+    
+    for (const commandFolder of commandFolders) {
+        registerCommands(path.join(dir, commandFolder));
+    }
+}
+
 client.once("ready", async (client) => {
     const commandsPath = path.resolve(__dirname, "commands");
     const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
 
     /* Register all commands from the `commands` folder */
-    for (const file of commandFiles) {
-        import(`${commandsPath}/${file}`).then(file => {
-            console.log(file);
-            commandHandler.set(file.command.name, file.run)
-        });
-    }    
+    registerCommands(path.join(__dirname, "commands"));   
 
     /* Add all guilds to the database */
     for (const guild of client.guilds.cache.values()) {
@@ -69,6 +81,10 @@ client.on("webhookUpdate", async (channel) => {
     });
 });
 
+client.on("channelCreate", async channel => {
+    await database.retrieveGuild(channel.guild.id);
+});
+
 client.on("guildMemberAdd", async (member) => {
     let guild = await database.retrieveGuild(member.guild.id);
 
@@ -97,15 +113,9 @@ client.on("guildBanAdd", async (ban) => {
     }
 });
 
-client.on("guildCreate", async (guild) => {
-    await database.defaultGuild(guild);
-});
+client.on("guildCreate", async (guild) => await database.defaultGuild(guild));
+client.on("guildDelete", async (guild) => await database.removeGuild(guild.id as string));
 
-client.on("guildDelete", async (guild) => {
-    await database.removeGuild(guild.id as string); 
-});
-
-/* Text command handler */
 client.on("messageCreate", async message => {
     if (!message.guildId) return;
     let guild = await database.retrieveGuild(message.guildId);
@@ -139,11 +149,14 @@ client.on("messageCreate", async message => {
 });
 
 client.on('interactionCreate', async interaction => {
-    if (interaction.isCommand()) {
-        let executeFunction = commandHandler.get(interaction.commandName);
-        if (executeFunction) await executeFunction(interaction, database);
-    }
-})
+    if (!interaction.isCommand()) return;
+
+    let executeFunction = commandHandler.get(interaction.commandName);
+    if (executeFunction) {
+        console.log(executeFunction);
+        await executeFunction(interaction, database)
+    };
+});
 
 /* Go to src/config.json and put your token there */
 client.login(token);
