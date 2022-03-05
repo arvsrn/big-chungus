@@ -117,7 +117,7 @@ client.on("guildCreate", async (guild) => await database.defaultGuild(guild));
 client.on("guildDelete", async (guild) => await database.removeGuild(guild.id as string));
 
 client.on("messageCreate", async message => {
-    if (!message.guildId) return;
+    if (!message.guildId || message.author.bot) return;
     let guild = await database.retrieveGuild(message.guildId);
 
     if (message.content.search(linksRegex) > 0 && guild?.messageFilters.links) {
@@ -126,9 +126,7 @@ client.on("messageCreate", async message => {
             replaceValues(guild.messageFilters.messages.links, message)
         );
         return;
-    }
-
-    if (
+    } else if (
         (message.content.includes("discord.gg/") || message.content.includes(".gg/")) 
         && guild?.messageFilters.discordInvites
     ) {
@@ -137,16 +135,20 @@ client.on("messageCreate", async message => {
             replaceValues(guild.messageFilters.messages.discordInvites, message)
         );
         return;
-    }
-
-    if (isBadMessage(message.content, guild?.messageFilters.blacklist ? guild?.messageFilters.blacklist : [])) {
+    } else if (isBadMessage(message.content, guild?.messageFilters.blacklist ? guild?.messageFilters.blacklist : [])) {
         await message.delete();
         await message.channel.send(
             replaceValues(guild?.messageFilters.messages.blacklist as string, message)
         );
         return;
+    } else if ((message.content.replace(/(.)\1{5,}/gm, "$1") != message.content) && guild?.messageFilters.spam) {
+        await message.delete();
+        await message.channel.send(
+            replaceValues(guild?.messageFilters.messages.spam as string, message)
+        );
+        return;
     }
-});
+})
 
 client.on('interactionCreate', async interaction => {
     if (!interaction.isCommand()) return;
