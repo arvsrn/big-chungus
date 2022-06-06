@@ -3,7 +3,9 @@ import clean from 'unzalgo';
 
 function getValues(context: Message): object {
     return {
-        user: context.author.tag
+        user: context.author.tag,
+        userID: context.author.id,
+        serverName: context.guild?.name,
     }
 }
 

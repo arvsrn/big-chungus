@@ -11,8 +11,7 @@ const rest = new REST({ version: '9' }).setToken(token);
 let commands: object[] = [];
 log('Started refreshing application p{[/]} commands.');
 
-const clientId = '936494176277758013';
-const guildId = '935143108092506152';
+const clientId = '951422464527831060';
 
 function deploy(dir: string) {
     const commandFiles = fs.readdirSync(dir).filter(file => file.endsWith('.js'));
@@ -33,7 +32,7 @@ function deploy(dir: string) {
 deploy(path.join(__dirname, 'commands'));
 
 rest.put(
-    Routes.applicationGuildCommands(clientId, guildId),
+    Routes.applicationCommands(clientId),
     { body: commands },
 );
 

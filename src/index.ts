@@ -113,6 +113,20 @@ client.on("guildBanAdd", async (ban) => {
     }
 });
 
+client.on("channelCreate", async (channel) => {
+    let guild = await database.retrieveGuild(channel.guild.id);
+    if (!guild) return;
+
+    if (guild.antiRaid) await channel.delete("[Big Chungus] Anti-raid was enabled.");
+});
+
+client.on("roleCreate", async (role) => {
+    let guild = await database.retrieveGuild(role.guild.id);
+    if (!guild) return;
+
+    if (guild.antiRaid) await role.delete("[Big Chungus] Anti-raid was enabled.");
+});
+
 client.on("guildCreate", async (guild) => await database.defaultGuild(guild));
 client.on("guildDelete", async (guild) => await database.removeGuild(guild.id as string));
 
@@ -154,10 +168,7 @@ client.on('interactionCreate', async interaction => {
     if (!interaction.isCommand()) return;
 
     let executeFunction = commandHandler.get(interaction.commandName);
-    if (executeFunction) {
-        console.log(executeFunction);
-        await executeFunction(interaction, database)
-    };
+    if (executeFunction) await executeFunction(interaction, database);
 });
 
 /* Go to src/config.json and put your token there */

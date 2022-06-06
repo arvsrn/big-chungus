@@ -12,12 +12,14 @@ export interface MessageFilter {
     blacklist: string[],
     discordInvites: boolean,
     links: boolean,
+    spam: boolean,
 
     /* The messages to send when a message is deleted */
     messages: {
         blacklist: string,
         discordInvites: string,
-        links: string
+        links: string,
+        spam: string,
     },
 
     spamFilter: SpamFilter,
@@ -65,17 +67,21 @@ export class Database {
                 blacklist: [],
                 discordInvites: true,
                 links: true,
+                spam: true,
 
                 messages: {
                     blacklist: "{user} This word is not allowed in this server!",
                     discordInvites: "{user} discord invites are not allowed in this server!",
                     links: "{user} links are not allowed in this server!",
+                    spam: "{user} Do not spam.",
                 },
 
                 spamFilter: {},
             },
 
-            raidCache: { bannedUsers: [] },
+            raidCache: { 
+                bannedUsers: []
+            },
             banCache: [],
             eventRateCache: new Map()
         });
