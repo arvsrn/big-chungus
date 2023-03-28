@@ -45,4 +45,4 @@ cd path/to/big-chungus
 
 ## Resources and Links
 * [Website](NOT_IMPLEMENTED) - Configure the bot here
-* [Documentations](NOT_IMPLEMENTED) - All commands in the bot are properly documented here.
+* [Documentations](NOT_IMPLEMENTED) - All commands in the bt are properly documented here.
